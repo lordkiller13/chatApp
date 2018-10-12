@@ -11,7 +11,20 @@ curl -i -H "Content-Type: application/json" -X POST -d "Hello, this is my second
 # post Chat log 1 with message for akash
 curl -i -H "Content-Type: application/json" -X POST -d "Hey, this is my first message" localhost:8080/chatlogs/akash/
 
+# post Chat log 2 with message for akash
+curl -i -H "Content-Type: application/json" -X POST -d "Hey, this is my second message" localhost:8080/chatlogs/akash/
+
 # get Chat logs for umber
-curl -i -H "Content-Type: application/json" -X GET -d '{"limit": 10, "start": "dummy"}' localhost:8080/chatlogs/umber
+curl -i -H "Content-Type: application/json" -X GET -d 10 localhost:8080/chatlogs/umber/1
 
+# get only one Chat log for umber
+curl -i -H "Content-Type: application/json" -X GET -d 1 localhost:8080/chatlogs/umber/1
 
+# get only one Chat log for akash starting from chat log 2
+curl -i -H "Content-Type: application/json" -X GET -d 1 localhost:8080/chatlogs/akash/3
+
+# delete chat log for umber
+curl -i -H "Content-Type: application/json" -X DELETE localhost:8080/chatlogs/umber
+
+# delete only one chat log for akash
+curl -i -H "Content-Type: application/json" -X DELETE localhost:8080/chatlogs/akash/3

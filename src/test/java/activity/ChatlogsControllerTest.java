@@ -64,10 +64,10 @@ public class ChatlogsControllerTest {
 
         chatlogsController.createChatlog("dummyUser", dummyMessage);
 
-        mvc.perform(MockMvcRequestBuilders.get("/chatlogs/dummyUser/10/WrongMessageId").accept(MediaType.APPLICATION_JSON))
+        mvc.perform(MockMvcRequestBuilders.get("/chatlogs/dummyUser/WrongMessageId").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        List<Chatlog> actualChatlogsForUser =  chatlogsController.getChatlogsForUser("dummyUser", 10, 2L);
+        List<Chatlog> actualChatlogsForUser =  chatlogsController.getChatlogsForUser("dummyUser", 2L, 10);
         assertEquals(actualChatlogsForUser.get(0).getMessage(), "dummyMessage");
     }
 
@@ -79,7 +79,7 @@ public class ChatlogsControllerTest {
         mvc.perform(MockMvcRequestBuilders.delete("/chatlogs/dummyUser").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        assertEquals(chatlogsController.getChatlogsForUser("dummyUser", 10, 1L).size(), 0);
+        assertEquals(chatlogsController.getChatlogsForUser("dummyUser", 1L, 10).size(), 0);
     }
 
     @Test
@@ -90,6 +90,6 @@ public class ChatlogsControllerTest {
         mvc.perform(MockMvcRequestBuilders.delete("/chatlogs/dummyUser/1").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        assertEquals(chatlogsController.getChatlogsForUser("dummyUser", 10, 1L).size(), 0);
+        assertEquals(chatlogsController.getChatlogsForUser("dummyUser", 1L, 10).size(), 0);
     }
 }

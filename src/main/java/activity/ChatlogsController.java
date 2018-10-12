@@ -41,14 +41,16 @@ public class ChatlogsController {
         return messageIdForCurrentChatLog;
     }
 
-    @GetMapping("/chatlogs/{user}/{limit}/{start}")
-    public List<Chatlog> getChatlogsForUser(@PathVariable("user") final String user, @PathVariable("limit") final int limit,
-                                            @PathVariable("start") final Long start) {
+    @GetMapping("/chatlogs/{user}/{start}")
+    public List<Chatlog> getChatlogsForUser(@PathVariable("user") final String user, @PathVariable("start") final Long start,
+                                            @RequestBody Integer limit) {
+        if (limit == null) {
+            limit = 10;
+        }
 
         final List<Chatlog> chatlogsList = userChatLogs.get(user);
 
         Collections.reverse(chatlogsList);
-
 
         final int startIndex = Collections.binarySearch(chatlogsList,
                 new Chatlog(null, null, false, start),
