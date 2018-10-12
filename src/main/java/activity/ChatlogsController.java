@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import pojo.Chatlog;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Umber Kapur.
@@ -13,6 +14,7 @@ import java.util.*;
 @RestController
 public class ChatlogsController {
 
+    private final AtomicLong messageId = new AtomicLong();
     private final Map<String, List<Chatlog>> userChatLogs = new HashMap<>();
 
     @RequestMapping("/")
@@ -22,9 +24,10 @@ public class ChatlogsController {
 
     @PostMapping("/chatlogs/{user}/")
     @ResponseStatus(HttpStatus.CREATED)
-    public String createChatlog(@PathVariable("user") final String user, @RequestBody final String message) {
-        final String messageId = UUID.randomUUID().toString();
-        final Chatlog chatlogForUser = new Chatlog(message, new Date().getTime(), true, messageId);
+    public Long createChatlog(@PathVariable("user") final String user, @RequestBody final String message) {
+
+        final Long messageIdForCurrentChatLog = messageId.incrementAndGet();
+        final Chatlog chatlogForUser = new Chatlog(message, new Date().getTime(), true, messageIdForCurrentChatLog);
 
         if (userChatLogs.get(user) == null) {
             final List<Chatlog> chatLogList = new LinkedList<>();
@@ -35,25 +38,26 @@ public class ChatlogsController {
             chatLogList.add(chatlogForUser);
             userChatLogs.put(user, chatLogList);
         }
-        return messageId;
+        return messageIdForCurrentChatLog;
     }
 
     @GetMapping("/chatlogs/{user}/{limit}/{start}")
-    public List<Chatlog> getChatlogsForUser(@PathVariable("user") final String user, @PathVariable final int limit,
-                                            @PathVariable final String start) {
+    public List<Chatlog> getChatlogsForUser(@PathVariable("user") final String user, @PathVariable("limit") final int limit,
+                                            @PathVariable("start") final Long start) {
 
         final List<Chatlog> chatlogsList = userChatLogs.get(user);
 
         Collections.reverse(chatlogsList);
 
+
+        final int startIndex = Collections.binarySearch(chatlogsList,
+                new Chatlog(null, null, false, start),
+                Comparator.comparing(Chatlog::getMessageId));
+
         for (int i = 0; i < chatlogsList.size(); ++i) {
             chatlogsList.get(i).setIsSent(false);   // changing isSent as Server is sending message to the user
         }
 
-        final int startIndex = Collections.binarySearch(chatlogsList,
-                new Chatlog(null, null, true, start),
-                Comparator.comparing(Chatlog::getMessageId));
-        System.out.println(chatlogsList.subList(Math.max(0, startIndex), Math.min(chatlogsList.size(), limit)));
         return chatlogsList.subList(Math.max(0, startIndex), Math.min(chatlogsList.size(), limit));
     }
 
@@ -63,7 +67,7 @@ public class ChatlogsController {
     }
 
     @DeleteMapping("/chatlogs/{user}/{msgid}")
-    public void deleteChatlogForUser(@PathVariable("user") final String user, @PathVariable("msgid") final String msgid)
+    public void deleteChatlogForUser(@PathVariable("user") final String user, @PathVariable("msgid") final Long msgid)
             throws IllegalArgumentException {
         final List<Chatlog> chatlogsList = userChatLogs.get(user);
         final int startIndex = Collections.binarySearch(chatlogsList,

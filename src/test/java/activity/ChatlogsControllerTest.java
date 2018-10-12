@@ -53,25 +53,21 @@ public class ChatlogsControllerTest {
         mvc.perform(MockMvcRequestBuilders.post("/chatlogs/dummyUser/").accept(MediaType.APPLICATION_JSON).content(requestJson))
                 .andExpect(status().isCreated());
 
-        String actualMessageId =  mockChatlogsController.createChatlog("dummyUser", dummyMessage);
-        assertTrue(actualMessageId.matches("[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"));
+        Long actualMessageId =  mockChatlogsController.createChatlog("dummyUser", dummyMessage);
+
+        assertEquals((Long) 2L, actualMessageId);
     }
 
     @Test
     public void getChatlogsForUser_HappyCase() throws Exception {
         String dummyMessage = "dummyMessage";
-        String requestJson = "{\n" +
-                "\t\"limit\": 10,\n" +
-                "\t\"start\": \"dummyStart\"\n" +
-                "}";
 
         mockChatlogsController.createChatlog("dummyUser", dummyMessage);
 
-        mvc.perform(MockMvcRequestBuilders.get("/chatlogs/dummyUser/10/dummy").accept(MediaType.APPLICATION_JSON).content(requestJson))
-                .andExpect(status().isOk());
+        mvc.perform(MockMvcRequestBuilders.get("/chatlogs/dummyUser/10/WrongMessageId").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
 
-        List<Chatlog> actualChatlogsForUser =  mockChatlogsController.getChatlogsForUser("dummyUser", 10, "dummyStart");
-
+        List<Chatlog> actualChatlogsForUser =  mockChatlogsController.getChatlogsForUser("dummyUser", 10, 2L);
         assertEquals(actualChatlogsForUser.get(0).getMessage(), "dummyMessage");
     }
 }

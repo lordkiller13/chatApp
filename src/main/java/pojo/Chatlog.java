@@ -1,5 +1,7 @@
 package pojo;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * @author Umber Kapur.
  */
@@ -12,9 +14,9 @@ public class Chatlog {
 
     private Boolean isSent;
 
-    private String messageId;
+    private Long messageId;
 
-    public Chatlog(String message, Long timestamp, Boolean isSent, String messageId) {
+    public Chatlog(String message, Long timestamp, Boolean isSent, Long messageId) {
         this.message = message;
         this.timestamp = timestamp;
         this.isSent = isSent;
@@ -29,7 +31,7 @@ public class Chatlog {
         return timestamp;
     }
 
-    public String getMessageId() {
+    public Long getMessageId() {
         return messageId;
     }
 
