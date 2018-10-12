@@ -41,24 +41,25 @@ public class ChatlogsController {
         return messageIdForCurrentChatLog;
     }
 
-    @GetMapping("/chatlogs/{user}/{limit}/{start}")
-    public List<Chatlog> getChatlogsForUser(@PathVariable("user") final String user, @PathVariable("limit") final int limit,
-                                            @PathVariable("start") final Long start) {
-
+    @GetMapping("/chatlogs/{user}/{start}")
+    public List<Chatlog> getChatlogsForUser(@PathVariable("user") final String user, @PathVariable("start") final Long start,
+                                            @RequestBody Integer limit) {
+        if (limit == null) {
+            limit = 10;
+        }
+        final List<Chatlog> reverseChatLogsList = new ArrayList<>();
         final List<Chatlog> chatlogsList = userChatLogs.get(user);
 
-        Collections.reverse(chatlogsList);
+        for (int i = 0; i < chatlogsList.size(); ++i) {
+            reverseChatLogsList.add(chatlogsList.get(i));
+            reverseChatLogsList.get(i).setIsSent(false);   // changing isSent as Server is sending message to the user
+        }
 
-
-        final int startIndex = Collections.binarySearch(chatlogsList,
+        final int startIndex = Collections.binarySearch(reverseChatLogsList,
                 new Chatlog(null, null, false, start),
                 Comparator.comparing(Chatlog::getMessageId));
 
-        for (int i = 0; i < chatlogsList.size(); ++i) {
-            chatlogsList.get(i).setIsSent(false);   // changing isSent as Server is sending message to the user
-        }
-
-        return chatlogsList.subList(Math.max(0, startIndex), Math.min(chatlogsList.size(), limit));
+        return reverseChatLogsList.subList(Math.max(0, startIndex), Math.min(reverseChatLogsList.size(), limit));
     }
 
     @DeleteMapping("/chatlogs/{user}")
