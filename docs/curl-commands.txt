@@ -1,0 +1,17 @@
+
+# Get Hello
+curl -i -H "Content-Type: application/json" -X GET localhost:8080
+
+# post Chat log 1 with message for umber
+curl -i -H "Content-Type: application/json" -X POST -d "Hello, this is my first message" localhost:8080/chatlogs/umber/
+
+# post Chat log 2 with message for umber
+curl -i -H "Content-Type: application/json" -X POST -d "Hello, this is my second message" localhost:8080/chatlogs/umber/
+
+# post Chat log 1 with message for akash
+curl -i -H "Content-Type: application/json" -X POST -d "Hey, this is my first message" localhost:8080/chatlogs/akash/
+
+# get Chat logs for umber
+curl -i -H "Content-Type: application/json" -X GET -d '{"limit": 10, "start": "dummy"}' localhost:8080/chatlogs/umber
+
+
